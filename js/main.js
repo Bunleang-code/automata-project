@@ -20,7 +20,9 @@ while (true) {
         "8. Update Transition\n" +
         "9. Check if DFA\n" +
         "10. Show States/Transitions\n" +
-        "11. Exit\n"
+        "11. Exit\n" +
+        "12. Convert NFA to DFA\n" +
+        "13. Test string acceptance\n"
     );
 
     if (choice === "1") {
@@ -101,6 +103,28 @@ while (true) {
     } else if (choice === "11") {
         alert("Exiting...");
         break;
+    } else if (choice === "12") {
+        if (isDFA(fa)) {
+            alert("Already a DFA.");
+        } else {
+            const dfa = fa.convertToDFA();
+            alert("✅ Converted to DFA.");
+            printStates(dfa);
+            printTransitions(dfa);
+            // Overwrite original FA with DFA
+            fa.states = dfa.states;
+            fa.transitions = dfa.transitions;
+            fa.startState = dfa.startState;
+            fa.finalStates = dfa.finalStates;
+        }
+    } else if (choice === "13") {
+        const input = prompt("Enter input string:");
+        if (!isDFA(fa)) {
+            alert("Please convert to DFA first.");
+        } else {
+            const result = fa.acceptsString(input);
+            alert(result ? "✅ String accepted." : "❌ String rejected.");
+        }
     } else {
         alert("Invalid choice.");
     }
