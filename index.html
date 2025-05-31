@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finite Automata Simulator</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Finite Automata Simulator</h1>
+
+        <div id="main-menu" class="gui-section">
+            <h2>Main Menu</h2>
+            <button id="btn-input-fa">Input FA</button>
+            <button id="btn-test-string">Test String Acceptance</button>
+            <button id="btn-minimize-dfa">Minimize DFA</button>
+            <button id="btn-show-all-fas">Show All Saved FAs</button>
+        </div>
+
+        <div id="input-gui" class="gui-section hidden">
+            <h2>Input Finite Automaton</h2>
+            <div class="input-group">
+                <label for="states-input">States (comma-separated):</label>
+                <input type="text" id="states-input" placeholder="q0,q1,q2">
+            </div>
+            <div class="input-group">
+                <label for="alphabet-input">Alphabet (comma-separated):</label>
+                <input type="text" id="alphabet-input" placeholder="a,b">
+            </div>
+            <div class="input-group">
+                <label for="start-state-input">Start State:</label>
+                <input type="text" id="start-state-input" placeholder="q0">
+            </div>
+            <div class="input-group">
+                <label for="final-states-input">Final States (comma-separated):</label>
+                <input type="text" id="final-states-input" placeholder="q2">
+            </div>
+            <div class="input-group">
+                <label for="transitions-input">Transitions (from,symbol,to;from,symbol,to;... - use {q1,q2} for NFA, 'epsilon' for ε):</label>
+                <textarea id="transitions-input" rows="5" placeholder="q0,a,q1;q1,b,q2;q1,epsilon,q0"></textarea>
+            </div>
+            <div class="button-group">
+                <button id="btn-add-fa">Add FA</button>
+                <button id="btn-input-gui-exit">Exit</button>
+            </div>
+        </div>
+
+        <div id="nfa-gui" class="gui-section hidden">
+            <h2>NFA Details (User ID: <span id="nfa-user-id"></span>)</h2>
+            <pre id="nfa-display-text"></pre>
+            <div id="nfa-display-visualization" class="visualization-container"></div>
+            <div class="button-group">
+                <button id="btn-save-nfa">Save NFA</button>
+                <button id="btn-convert-nfa-to-dfa">Convert to DFA</button>
+                <button id="btn-nfa-gui-exit">Exit</button>
+            </div>
+        </div>
+
+        <div id="dfa-gui" class="gui-section hidden">
+            <h2>DFA Details (User ID: <span id="dfa-user-id"></span>)</h2>
+            <pre id="dfa-display-text"></pre>
+            <div id="dfa-display-visualization" class="visualization-container"></div>
+            <div class="button-group">
+                <button id="btn-save-dfa">Save DFA</button>
+                <button id="btn-dfa-gui-exit">Exit</button>
+            </div>
+        </div>
+
+        <div id="test-acceptance-gui" class="gui-section hidden">
+            <h2>Test String Acceptance</h2>
+            <div class="input-group">
+                <label for="test-user-id">Enter FA User ID:</label>
+                <input type="number" id="test-user-id" placeholder="1">
+                <button id="btn-check-fa-for-test">Load FA</button>
+            </div>
+
+            <div id="fa-details-for-test" class="hidden">
+                <h3>Selected FA:</h3>
+                <pre id="display-fa-for-test-text"></pre>
+                <div id="display-fa-for-test-visualization" class="visualization-container"></div>
+                <div class="input-group">
+                    <label for="test-string-input">String to Test:</label>
+                    <input type="text" id="test-string-input" placeholder="aabba">
+                    <button id="btn-test-string-acceptance">Test String</button>
+                </div>
+                <p id="acceptance-result"></p>
+                <div id="rejection-options" class="hidden button-group">
+                    <p>String rejected multiple times. Do you want to:</p>
+                    <button id="btn-continue-test">Continue Testing</button>
+                    <button id="btn-exit-test-to-main">Exit to Main Menu</button>
+                </div>
+                <button id="btn-save-test-result" class="hidden">Save Result & Exit</button>
+            </div>
+            <div class="button-group">
+                <button id="btn-test-gui-exit">Exit to Main Menu</button>
+            </div>
+        </div>
+
+        <div id="minimize-dfa-gui" class="gui-section hidden">
+            <h2>Minimize DFA</h2>
+            <div class="input-group">
+                <label for="minimize-user-id">Enter DFA User ID to Minimize:</label>
+                <input type="number" id="minimize-user-id" placeholder="1">
+                <button id="btn-minimize-dfa-action">Minimize DFA</button>
+            </div>
+            <div id="minimized-dfa-display" class="hidden">
+                <h3>Minimized DFA:</h3>
+                <pre id="display-minimized-dfa-text"></pre>
+                <div id="display-minimized-dfa-visualization" class="visualization-container"></div>
+            </div>
+            <div class="button-group">
+                <button id="btn-minimize-gui-exit">Exit to Main Menu</button>
+            </div>
+        </div>
+
+        <div id="show-all-fas-gui" class="gui-section hidden">
+            <h2>All Saved Finite Automata</h2>
+            <div id="all-fas-display" class="fa-table-container">
+                </div>
+            <div class="button-group">
+                <button id="btn-show-all-fas-exit">Exit to Main Menu</button>
+            </div>
+        </div>
+
+    </div> <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="js/fa.js"></script>
+    <script src="js/operations.js"></script>
+    <script src="js/conversion.js"></script>
+    <script src="js/minimization.js"></script>
+    <script src="js/visualization.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

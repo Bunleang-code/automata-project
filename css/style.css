@@ -1,0 +1,223 @@
+/* automata-project/css/style.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align to the top */
+    min-height: 100vh;
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 900px; /* Increased max-width */
+    margin-top: 20px;
+}
+
+h1, h2, h3, h4 {
+    color: #0056b3;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.gui-section {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.input-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.button-group {
+    text-align: center;
+    margin-top: 20px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 5px;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #07dcdc;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+pre {
+    background-color: #eee;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    white-space: pre-wrap; /* Ensures long lines wrap */
+    word-wrap: break-word; /* Breaks long words if necessary */
+    font-size: 0.9em;
+    max-height: 250px; /* Limit height for readability */
+    overflow-y: auto; /* Add scroll if content exceeds max-height */
+}
+
+#acceptance-result {
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
+}
+
+#acceptance-result.accepted {
+    color: green;
+}
+
+#acceptance-result.rejected {
+    color: red;
+}
+
+.visualization-container {
+    width: 100%;
+    height: 300px; /* Fixed height for consistency */
+    border: 1px solid #ccc;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    background-color: #fff; /* Ensure white background for visualization */
+    border-radius: 4px;
+    overflow: hidden; /* Hide overflow if graph goes beyond bounds */
+    display: flex; /* Use flexbox to center content */
+    justify-content: center;
+    align-items: center;
+}
+
+.visualization-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Ensures the image scales down and fits without cropping */
+}
+
+/* --- Table Styles for "Show All FAs" --- */
+.fa-table-container {
+    overflow-x: auto; /* Enable horizontal scrolling for wide tables on small screens */
+}
+
+.fa-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.9em;
+    min-width: 700px; /* Ensure a minimum width for the table */
+}
+
+.fa-data-table th,
+.fa-data-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top; /* Align content to the top of cells */
+}
+
+.fa-data-table th {
+    background-color: #027cff;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fa-data-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.fa-data-table tbody tr:hover {
+    background-color: #e9e9e9;
+}
+
+.fa-data-table img {
+    max-width: 150px; /* Smaller images within the table */
+    height: auto;
+    display: block; /* Remove extra space below image */
+    margin: 0 auto; /* Center images in cells */
+    border: 1px solid #eee;
+    border-radius: 3px;
+}
+
+.fa-data-table .original-input-cell {
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.fa-data-table .string-test-results-cell ul {
+    list-style-type: none; /* No bullets for cleaner look */
+    padding: 0;
+    margin: 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.fa-data-table .string-test-results-cell li {
+    margin-bottom: 2px;
+    font-size: 0.85em;
+}
+
+.fa-data-table .string-test-results-cell .accepted {
+    color: green;
+}
+
+.fa-data-table .string-test-results-cell .rejected {
+    color: red;
+}
+
+/* New style for the remove button */
+.btn-remove-fa {
+    background-color: #dc3545; /* Red color for danger/remove */
+    padding: 5px 10px;
+    font-size: 0.85rem;
+    margin: 2px;
+}
+
+.btn-remove-fa:hover {
+    background-color: #c82333;
+}
