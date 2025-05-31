@@ -41,20 +41,12 @@ class Transition {
  * Represents a Finite Automaton (abstract base class).
  */
 class FiniteAutomaton {
-<<<<<<< HEAD
     constructor(states, alphabet, transitions, startState, finalStates) {
         this.states = states; // Array of State objects
         this.alphabet = alphabet; // Array of strings
         this.transitions = transitions; // Array of Transition objects
         this.startState = startState; // State object
         this.finalStates = finalStates; // Array of State objects
-=======
-    constructor() {
-        this.states = {};
-        this.transitions = [];
-        this.startState = null;
-        this.finalStates = [];
->>>>>>> 3ac73e4604436a9c425286caa034af81fc6f6795
     }
 
     /**
@@ -76,7 +68,6 @@ class FiniteAutomaton {
         return this.transitions.filter(t => t.fromState.equals(fromState) && t.symbol === symbol);
     }
 
-<<<<<<< HEAD
     // Helper for saving/loading: get simple objects
     toJSON() {
         return {
@@ -87,34 +78,6 @@ class FiniteAutomaton {
             startState: this.startState.name,
             finalStates: this.finalStates.map(s => s.name)
         };
-=======
-    isDFA() {
-        const seen = new Set();
-        for (const t of this.transitions) {
-            const key = `${t.fromState.name}-${t.symbol}`;
-            if (seen.has(key)) return false;
-            seen.add(key);
-        }
-        return true;
-    }
-
-    acceptsString(input) {
-        if (!this.isDFA()) {
-            alert("❌ Must be DFA to test string acceptance.");
-            return false;
-        }
-
-        let currentState = this.startState;
-        for (const symbol of input) {
-            const next = this.transitions.find(t =>
-                t.fromState.name === currentState.name &&
-                t.symbol === symbol
-            );
-            if (!next) return false;
-            currentState = next.toState;
-        }
-        return currentState.isFinal;
->>>>>>> 3ac73e4604436a9c425286caa034af81fc6f6795
     }
 }
 
