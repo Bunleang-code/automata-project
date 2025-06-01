@@ -6,12 +6,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputGui = document.getElementById('input-gui');
     const nfaGui = document.getElementById('nfa-gui');
     const dfaGui = document.getElementById('dfa-gui');
+    const convertNfaByIdGui = document.getElementById('convert-nfa-by-id-gui'); // New GUI
     const testAcceptanceGui = document.getElementById('test-acceptance-gui');
     const minimizeDfaGui = document.getElementById('minimize-dfa-gui');
     const showAllFasGui = document.getElementById('show-all-fas-gui');
+    const visualizationModal = document.getElementById('visualization-modal'); // Modal
 
     // Main Menu Buttons
     document.getElementById('btn-input-fa').addEventListener('click', () => showGui(inputGui));
+    document.getElementById('btn-convert-nfa-by-id').addEventListener('click', () => { // New Button Handler
+        document.getElementById('convert-nfa-user-id-input').value = '';
+        document.getElementById('converted-dfa-display-area').classList.add('hidden');
+        document.getElementById('convert-nfa-message').textContent = '';
+        showGui(convertNfaByIdGui);
+    });
     document.getElementById('btn-test-string').addEventListener('click', () => showGui(testAcceptanceGui));
     document.getElementById('btn-minimize-dfa').addEventListener('click', () => showGui(minimizeDfaGui));
     document.getElementById('btn-show-all-fas').addEventListener('click', () => {
@@ -24,13 +32,41 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-add-fa').addEventListener('click', handleAddFa);
 
     // NFA GUI Buttons
-    document.getElementById('btn-save-nfa').addEventListener('click', saveCurrentFa);
-    document.getElementById('btn-convert-nfa-to-dfa').addEventListener('click', convertNfaToDfaAndDisplay);
+    document.getElementById('btn-save-nfa').addEventListener('click', () => { // Modified
+        if (currentFa) {
+            const existingIndex = savedFas.findIndex(fa => fa.id === currentFa.id);
+            if (existingIndex !== -1) {
+                savedFas[existingIndex] = currentFa;
+            } else {
+                savedFas.push(currentFa);
+            }
+            saveFas();
+            alert(`NFA User ID ${currentFa.id} saved successfully! You can now convert it or exit.`);
+            // User stays on NFA GUI
+        } else {
+            alert('No NFA to save. Please add one first.');
+        }
+    });
+    document.getElementById('btn-convert-nfa-to-dfa').addEventListener('click', convertCurrentNfaToDfaAndDisplay); // Renamed handler for clarity
     document.getElementById('btn-nfa-gui-exit').addEventListener('click', () => showGui(mainMenu));
 
     // DFA GUI Buttons
-    document.getElementById('btn-save-dfa').addEventListener('click', saveCurrentFa);
+    document.getElementById('btn-save-dfa').addEventListener('click', saveCurrentFa); // This now correctly saves DFA (original or converted)
     document.getElementById('btn-dfa-gui-exit').addEventListener('click', () => showGui(mainMenu));
+
+    // Convert NFA by ID GUI Buttons (New)
+    document.getElementById('btn-load-and-convert-nfa').addEventListener('click', handleLoadAndConvertNfaById);
+    document.getElementById('btn-save-converted-dfa').addEventListener('click', () => {
+        if (currentFa && currentFa.fa.type === "DFA") { // Ensure currentFa is the converted DFA
+            saveCurrentFa(); // This will save the updated faEntry (currentFa)
+            alert('Converted DFA saved successfully!');
+            showGui(mainMenu); // Optionally go to main menu or stay
+        } else {
+            alert('No converted DFA to save or current FA is not a DFA.');
+        }
+    });
+    document.getElementById('btn-convert-nfa-by-id-gui-exit').addEventListener('click', () => showGui(mainMenu));
+
 
     // Test Acceptance GUI Buttons
     document.getElementById('btn-test-gui-exit').addEventListener('click', () => showGui(mainMenu));
@@ -41,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('test-string-input').value = '';
         document.getElementById('rejection-options').classList.add('hidden');
         document.getElementById('btn-save-test-result').classList.add('hidden');
-        rejectionCount = 0; // Reset rejection count
+        rejectionCount = 0;
     });
     document.getElementById('btn-exit-test-to-main').addEventListener('click', () => showGui(mainMenu));
     document.getElementById('btn-save-test-result').addEventListener('click', saveLastTestedResult);
@@ -52,34 +88,42 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-minimize-gui-exit').addEventListener('click', () => showGui(mainMenu));
 
     // Show All FAs GUI Buttons
+    document.getElementById('btn-download-all-fas').addEventListener('click', downloadAllFasAsJson); // New
     document.getElementById('btn-show-all-fas-exit').addEventListener('click', () => showGui(mainMenu));
 
+    // Modal buttons
+    document.getElementById('close-visualization-modal').addEventListener('click', () => {
+        visualizationModal.classList.add('hidden');
+        visualizationModal.style.display = 'none'; // Ensure it's hidden
+    });
+    // Close modal if clicked outside content (optional)
+    visualizationModal.addEventListener('click', (event) => {
+        if (event.target === visualizationModal) {
+            visualizationModal.classList.add('hidden');
+            visualizationModal.style.display = 'none';
+        }
+    });
 
-    // --- Global Variables for current FA and User ID ---
-    let currentFa = null; // Stores the full FA entry object { id: ..., fa: FA_Object, originalInput: {}, stringTestResults: [] }
-    let currentFaUserId = 0; // Tracks the highest assigned User ID
-    let savedFas = []; // Array to hold { id: ..., fa: FA_Object, originalInput: {}, stringTestResults: [], dfaVisualization: base64 } entries
+
+    // --- Global Variables ---
+    let currentFa = null; // Stores the full FA entry object { id: ..., fa: FA_Object, originalInput: {}, stringTestResults: [], isNFA: boolean, minimizedDfa: FA_Object|null }
+    let currentFaUserId = 0;
+    let savedFas = [];
     let rejectionCount = 0;
-    let lastTestedFaEntry = null; // Stores the full FA entry object for the last test
+    let lastTestedFaEntry = null;
 
     // --- Utility Functions ---
     function showGui(guiElement) {
-        const guis = [mainMenu, inputGui, nfaGui, dfaGui, testAcceptanceGui, minimizeDfaGui, showAllFasGui];
+        const guis = [mainMenu, inputGui, nfaGui, dfaGui, convertNfaByIdGui, testAcceptanceGui, minimizeDfaGui, showAllFasGui];
         guis.forEach(gui => gui.classList.add('hidden'));
         guiElement.classList.remove('hidden');
+        if (guiElement === visualizationModal) { // Special handling for modal display
+            guiElement.style.display = 'flex'; // Use flex for centering
+        }
     }
 
-    /**
-     * Reconstructs an FA object (DFA or NFA) from its plain JSON data.
-     * This is crucial when loading from localStorage because JSON.parse()
-     * only returns plain objects, losing the class methods.
-     * @param {object} faData - The plain object representing the FA.
-     * @returns {FiniteAutomaton} An instance of DFA or NFA.
-     */
     function reconstructFaObject(faData) {
-        // Handle null or undefined faData gracefully
         if (!faData) return null;
-
         const states = faData.states.map(sName => new State(sName));
         const startState = states.find(s => s.name === faData.startState);
         const finalStates = faData.finalStates.map(fsName => states.find(s => s.name === fsName));
@@ -97,47 +141,38 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    /**
-     * Loads saved FAs from localStorage and reconstructs their objects.
-     */
     function loadSavedFas() {
         const fasJson = localStorage.getItem('savedFas');
         if (fasJson) {
             const rawFas = JSON.parse(fasJson);
             savedFas = rawFas.map(faEntryData => {
                 const faObject = reconstructFaObject(faEntryData.fa);
-                // Reconstruct minimized DFA object if it exists
                 const minimizedDfaObject = faEntryData.minimizedDfa ? reconstructFaObject(faEntryData.minimizedDfa) : null;
                 return {
                     id: faEntryData.id,
                     fa: faObject,
-                    originalInput: faEntryData.originalInput || {}, // Load original input
-                    stringTestResults: faEntryData.stringTestResults || [], // Load test results
-                    // dfaVisualization: faEntryData.dfaVisualization || null, // No longer needed for live viz in table
-                    isNFA: faEntryData.isNFA, // Load NFA flag
-                    minimizedDfa: minimizedDfaObject // Store the minimized DFA object
+                    originalInput: faEntryData.originalInput || {},
+                    stringTestResults: faEntryData.stringTestResults || [],
+                    isNFA: faEntryData.isNFA || false, // Ensure isNFA flag is loaded
+                    minimizedDfa: minimizedDfaObject
                 };
             });
-            // Update currentFaUserId based on the highest existing ID
             if (savedFas.length > 0) {
-                currentFaUserId = Math.max(...savedFas.map(fa => fa.id));
+                currentFaUserId = Math.max(...savedFas.map(fa => fa.id), 0);
+            } else {
+                currentFaUserId = 0;
             }
         }
     }
 
-    /**
-     * Saves the current list of FAs to localStorage.
-     * This uses the toJSON() methods on FA, State, Transition classes for proper serialization.
-     */
     function saveFas() {
         localStorage.setItem('savedFas', JSON.stringify(savedFas.map(faEntry => ({
             id: faEntry.id,
-            fa: faEntry.fa.toJSON(), // Call the toJSON method on the FA object
-            originalInput: faEntry.originalInput, // Store the raw input
-            stringTestResults: faEntry.stringTestResults, // Store test results
-            // dfaVisualization: faEntry.dfaVisualization, // No longer needed for live viz in table
-            isNFA: faEntry.isNFA, // Store NFA flag
-            minimizedDfa: faEntry.minimizedDfa ? faEntry.minimizedDfa.toJSON() : null // Store minimized DFA as JSON
+            fa: faEntry.fa.toJSON(),
+            originalInput: faEntry.originalInput,
+            stringTestResults: faEntry.stringTestResults,
+            isNFA: faEntry.isNFA,
+            minimizedDfa: faEntry.minimizedDfa ? faEntry.minimizedDfa.toJSON() : null
         }))));
     }
 
@@ -146,14 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return currentFaUserId;
     }
 
-    /**
-     * Displays FA details as text and optionally visualizes it.
-     * @param {FiniteAutomaton} fa - The FA object to display.
-     * @param {string} textElementId - ID of the <pre> element for text display.
-     * @param {string} visualizationElementId - ID of the <div> element for visualization.
-     * @returns {void}
-     */
-    async function displayFaDetails(fa, textElementId, visualizationElementId) {
+    async function displayFaDetails(fa, textElementId, visualizationElementId, clearPreviousViz = true) {
         const textDisplay = document.getElementById(textElementId);
         if (textDisplay) {
             let faString = `Type: ${fa.type}\n`;
@@ -169,19 +197,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (visualizationElementId) {
-            // No need to await image data if we're not storing it as base64 in faEntry.dfaVisualization
-            // The visualizeFA function directly renders to the DOM
+            if (clearPreviousViz) {
+                 document.getElementById(visualizationElementId).innerHTML = ''; // Clear previous
+            }
             visualizeFA(fa, visualizationElementId);
         }
     }
 
     // --- Event Handlers ---
 
-    /**
-     * Handles adding a new FA from the input fields.
-     * Detects if it's a DFA or NFA and displays accordingly.
-     */
     async function handleAddFa() {
+        // ... (existing handleAddFa logic from your file)
+        // Ensure that when a new FA is added, currentFa is structured correctly:
+        // currentFa = { id: userId, fa: newDFA_or_NFA, originalInput: originalInputData, stringTestResults: [], isNFA: (boolean), minimizedDfa: null };
         console.log("Add FA button clicked.");
         const statesInput = document.getElementById('states-input');
         const alphabetInput = document.getElementById('alphabet-input');
@@ -189,10 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const finalStatesInput = document.getElementById('final-states-input');
         const transitionsInput = document.getElementById('transitions-input');
 
-        // Check if all input elements exist
         if (!statesInput || !alphabetInput || !startStateInput || !finalStatesInput || !transitionsInput) {
-            console.error("One or more input elements not found in the DOM.");
-            alert('Error: Required input fields are missing from the page. Please check your HTML.');
+            console.error("One or more input elements not found.");
+            alert('Error: Required input fields are missing.');
             return;
         }
 
@@ -202,13 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const finalStatesValue = finalStatesInput.value.trim();
         const transitionsValue = transitionsInput.value.trim();
 
-        // Store original input values before parsing
         const originalInputData = {
-            states: statesValue,
-            alphabet: alphabetValue,
-            startState: startStateValue,
-            finalStates: finalStatesValue,
-            transitions: transitionsValue
+            states: statesValue, alphabet: alphabetValue, startState: startStateValue,
+            finalStates: finalStatesValue, transitions: transitionsValue
         };
 
         if (!statesValue || !alphabetValue || !startStateValue || !finalStatesValue || !transitionsValue) {
@@ -217,200 +240,196 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            console.log("Parsing states...");
             const states = statesValue.split(',').map(s => new State(s.trim())).filter(s => s.name !== '');
-
-            console.log("Parsing alphabet...");
-            // Filter out empty strings from alphabet
             const alphabet = alphabetValue.split(',').map(s => s.trim()).filter(s => s !== '');
-            // Ensure no 'epsilon' in regular alphabet
-            if (alphabet.includes('epsilon')) {
-                throw new Error("The symbol 'epsilon' is reserved for epsilon transitions and cannot be part of the regular alphabet.");
-            }
+            if (alphabet.includes('epsilon')) throw new Error("'epsilon' cannot be in the alphabet.");
 
-
-            console.log("Finding start state...");
             const startState = states.find(s => s.name === startStateValue);
-            if (!startState) {
-                throw new Error(`Start state '${startStateValue}' must be one of the defined states.`);
-            }
+            if (!startState) throw new Error(`Start state '${startStateValue}' not defined.`);
 
-            console.log("Finding final states...");
-            const finalStates = finalStatesValue.split(',').map(fs => {
-                const foundState = states.find(s => s.name === fs.trim());
-                return foundState;
-            }).filter(fs => fs); // Filter out any final state names not found in the states list
-            if (finalStatesValue.length > 0 && finalStates.length === 0 && finalStatesValue.split(',').map(fs => fs.trim()).some(fs => fs !== '')) {
-                // Check if finalStatesValue was not empty but no valid states were found
+            const finalStates = finalStatesValue.split(',').map(fsName => states.find(s => s.name === fsName.trim())).filter(Boolean);
+            if (finalStatesValue.split(',').map(fs => fs.trim()).filter(Boolean).length > 0 && finalStates.length === 0) {
                 throw new Error('One or more final states are not defined in the states list.');
             }
-
-
-            console.log("Parsing transitions...");
-            const transitions = [];
-            const transitionEntries = transitionsValue.split(';').filter(entry => entry.trim() !== ''); // Filter out empty entries
             
-            transitionEntries.forEach((tStr, index) => {
+            const parsedTransitions = [];
+            const transitionEntries = transitionsValue.split(';').filter(entry => entry.trim() !== '');
+            transitionEntries.forEach((tStr) => {
                 const parts = tStr.trim().split(',');
-                if (parts.length === 3) {
-                    const fromStateName = parts[0].trim();
-                    const symbol = parts[1].trim();
-                    const toStatesString = parts[2].trim();
-
-                    const fromState = states.find(s => s.name === fromStateName);
-                    if (!fromState) {
-                        throw new Error(`From state '${fromStateName}' not defined for transition: ${tStr}`);
-                    }
-
-                    if (symbol === 'epsilon' && alphabet.includes('epsilon')) {
-                         throw new Error("Alphabet contains 'epsilon'. The symbol 'epsilon' is reserved only for epsilon transitions and cannot be in the alphabet.");
-                    }
-                    if (symbol !== 'epsilon' && !alphabet.includes(symbol)) {
-                        throw new Error(`Symbol '${symbol}' not defined in the alphabet for transition: ${tStr}`);
-                    }
-
-
-                    let targetStateNames;
-                    if (toStatesString.startsWith('{') && toStatesString.endsWith('}')) {
-                        targetStateNames = toStatesString.substring(1, toStatesString.length - 1).split(',').map(s => s.trim()).filter(s => s !== '');
-                    } else {
-                        targetStateNames = [toStatesString.trim()];
-                    }
-
-                    const toStates = targetStateNames.map(tsName => {
-                        const state = states.find(s => s.name === tsName);
-                        if (!state) {
-                            throw new Error(`To state '${tsName}' not defined for transition: ${tStr}`);
-                        }
-                        return state;
-                    });
-                    
-                    if (toStates.length === 0 && targetStateNames.length > 0) { // If target names were provided but no states found
-                         throw new Error(`One or more target states for transition '${tStr}' not defined in the states list.`);
-                    }
-
-                    transitions.push(new Transition(fromState, symbol, toStates));
+                if (parts.length !== 3) throw new Error(`Malformed transition: '${tStr}'.`);
+                const from = states.find(s => s.name === parts[0].trim());
+                const sym = parts[1].trim();
+                if (!from) throw new Error(`State '${parts[0].trim()}' not defined in transition '${tStr}'.`);
+                if (sym !== 'epsilon' && !alphabet.includes(sym)) throw new Error(`Symbol '${sym}' not in alphabet for transition '${tStr}'.`);
+                
+                const toStateNamesStr = parts[2].trim();
+                let targetNames;
+                if (toStateNamesStr.startsWith('{') && toStateNamesStr.endsWith('}')) {
+                    targetNames = toStateNamesStr.substring(1, toStateNamesStr.length - 1).split(',').map(s => s.trim()).filter(Boolean);
                 } else {
-                    throw new Error(`Malformed transition format at entry ${index + 1}: '${tStr}'. Expected 'from,symbol,to' or 'from,symbol,{to1,to2}'`);
+                    targetNames = [toStateNamesStr];
                 }
+                const toStates = targetNames.map(tsName => {
+                    const s = states.find(st => st.name === tsName);
+                    if (!s) throw new Error(`Target state '${tsName}' not defined in transition '${tStr}'.`);
+                    return s;
+                });
+                if (targetNames.length > 0 && toStates.length === 0) throw new Error(`No valid target states for transition '${tStr}'.`);
+                parsedTransitions.push(new Transition(from, sym, toStates));
             });
 
+            const tempFA = new NFA(states, alphabet, parsedTransitions, startState, finalStates); // Use NFA for initial check
+            const determinismCheck = checkDeterminism(tempFA);
             const userId = getNextUserId();
-            let currentFaEntry = {
+            
+            currentFa = { // Initialize currentFa structure fully
                 id: userId,
-                fa: null, // Will be set to DFA or NFA instance
+                fa: null, // to be replaced by DFA or NFA instance
                 originalInput: originalInputData,
                 stringTestResults: [],
-                // dfaVisualization: null, // No longer needed for live viz in table
-                isNFA: false, // Default to false, updated if NFA
-                minimizedDfa: null // Stores the minimized DFA object
+                isNFA: !determinismCheck.isDFA,
+                minimizedDfa: null
             };
 
-            console.log("Checking determinism...");
-            // Temporarily create an NFA to run determinism check, as all FA types can be represented initially as NFA.
-            const tempFA = new NFA(states, alphabet, transitions, startState, finalStates);
-            const determinismCheckResult = checkDeterminism(tempFA);
-
-            if (determinismCheckResult.isDFA) {
-                // If it's deterministic, create a DFA object
-                const newDFA = new DFA(states, alphabet, transitions, startState, finalStates);
-                currentFaEntry.fa = newDFA;
+            if (determinismCheck.isDFA) {
+                currentFa.fa = new DFA(states, alphabet, parsedTransitions, startState, finalStates);
                 document.getElementById('dfa-user-id').textContent = userId;
-                displayFaDetails(newDFA, 'dfa-display-text', 'dfa-display-visualization');
+                displayFaDetails(currentFa.fa, 'dfa-display-text', 'dfa-display-visualization');
                 alert(`FA created as DFA (User ID: ${userId}).`);
                 showGui(dfaGui);
             } else {
-                // If it's not deterministic, it's an NFA
-                const newNFA = new NFA(states, alphabet, transitions, startState, finalStates);
-                currentFaEntry.fa = newNFA;
-                currentFaEntry.isNFA = true; // Mark as NFA
+                currentFa.fa = new NFA(states, alphabet, parsedTransitions, startState, finalStates); // Already have tempFA
                 document.getElementById('nfa-user-id').textContent = userId;
-                displayFaDetails(newNFA, 'nfa-display-text', 'nfa-display-visualization');
-                alert(`FA created as NFA (User ID: ${userId}). Reasons: \n- ${determinismCheckResult.issues.join('\n- ')}`);
+                displayFaDetails(currentFa.fa, 'nfa-display-text', 'nfa-display-visualization');
+                alert(`FA created as NFA (User ID: ${userId}). Reasons:\n- ${determinismCheck.issues.join('\n- ')}`);
                 showGui(nfaGui);
             }
+            // Do not save here automatically, let user click save button on DFA/NFA GUI.
 
-            // Set the global currentFa to the full entry object
-            currentFa = currentFaEntry;
-
-            // Now save the FA entry including visualization data
-            saveFas(); // This ensures the visualization is saved immediately
-
-            // Clear input fields after successful addition
-            statesInput.value = '';
-            alphabetInput.value = '';
-            startStateInput.value = '';
-            finalStatesInput.value = '';
-            transitionsInput.value = '';
+            // Clear input fields
+            statesInput.value = ''; alphabetInput.value = ''; startStateInput.value = '';
+            finalStatesInput.value = ''; transitionsInput.value = '';
 
         } catch (error) {
-            console.error("Error during handleAddFa:", error);
+            console.error("Error in handleAddFa:", error);
             alert('Error creating FA: ' + error.message);
+            currentFa = null; // Reset currentFa if creation failed
         }
     }
 
-    /**
-     * Saves the currently active FA (DFA or NFA) to the savedFas array and localStorage.
-     */
+
     async function saveCurrentFa() {
-        if (currentFa) {
-            const existingIndex = savedFas.findIndex(fa => fa.id === currentFa.id);
+        if (currentFa && currentFa.fa) { // Check fa property within currentFa
+            const existingIndex = savedFas.findIndex(entry => entry.id === currentFa.id);
             if (existingIndex !== -1) {
-                savedFas[existingIndex] = currentFa;
-                alert(`FA User ID ${currentFa.id} updated successfully!`);
-            }
-            else {
-                savedFas.push(currentFa);
-                alert(`FA User ID ${currentFa.id} saved successfully!`);
+                savedFas[existingIndex] = currentFa; // Update existing
+            } else {
+                savedFas.push(currentFa); // Add as new
             }
             saveFas();
+            alert(`FA User ID ${currentFa.id} (Type: ${currentFa.fa.type}, NFA Origin: ${currentFa.isNFA}) saved successfully!`);
             showGui(mainMenu);
         } else {
-            alert('No FA to save. Please add one first.');
+            alert('No FA to save. Please add or load one first.');
         }
     }
 
-    /**
-     * Converts the current NFA to a DFA and displays it.
-     */
-    async function convertNfaToDfaAndDisplay() {
-        if (currentFa && currentFa.fa.type === "NFA") {
+    async function convertCurrentNfaToDfaAndDisplay() { // For NFA GUI's convert button
+        if (currentFa && currentFa.fa && currentFa.fa.type === "NFA") {
             try {
                 const convertedDFA = convertNFAtoDFA(currentFa.fa);
-                currentFa.fa = convertedDFA; // Update the FA object to the converted DFA
-                currentFa.isNFA = false; // It's now a DFA
+                currentFa.fa = convertedDFA; // Update the FA object within currentFa
+                currentFa.isNFA = true; // Mark that this DFA originated from an NFA
+                                        // The type is now DFA, but isNFA flag indicates origin.
                 document.getElementById('dfa-user-id').textContent = currentFa.id;
-                displayFaDetails(convertedDFA, 'dfa-display-text', 'dfa-display-visualization'); // Display in current GUI
-                alert(`NFA User ID ${currentFa.id} converted to DFA successfully!`);
+                displayFaDetails(convertedDFA, 'dfa-display-text', 'dfa-display-visualization');
+                alert(`NFA (User ID: ${currentFa.id}) converted to DFA successfully! You can now save this DFA.`);
                 showGui(dfaGui);
-                saveFas(); // Save changes after conversion
+                // Do not auto-save here. Let user click "Save DFA" on the dfa-gui.
             } catch (error) {
                 console.error("Error during NFA to DFA conversion:", error);
-                alert('Error during NFA to DFA conversion: ' + error.message);
+                alert('Error converting NFA to DFA: ' + error.message);
             }
         } else {
-            alert('No NFA loaded or selected FA is already a DFA. Please select an NFA from the input screen first.');
+            alert('No NFA loaded or current FA is already a DFA. Please select an NFA from input or load one.');
         }
     }
 
-    /**
-     * Loads an FA by User ID for string testing.
-     */
-    async function checkFaForTest() {
-        const userId = parseInt(document.getElementById('test-user-id').value);
+    async function handleLoadAndConvertNfaById() { // For new "Convert NFA by ID" GUI
+        const userIdInput = document.getElementById('convert-nfa-user-id-input');
+        const messageArea = document.getElementById('convert-nfa-message');
+        const displayArea = document.getElementById('converted-dfa-display-area');
+        const sourceNfaIdSpan = document.getElementById('source-nfa-id');
+
+        messageArea.textContent = '';
+        displayArea.classList.add('hidden');
+
+        const userId = parseInt(userIdInput.value);
         if (isNaN(userId) || userId <= 0) {
-            alert('Please enter a valid User ID (a positive number).');
+            messageArea.textContent = 'Please enter a valid User ID.';
+            messageArea.style.color = 'red';
             return;
         }
 
+        const faEntry = savedFas.find(entry => entry.id === userId);
+
+        if (!faEntry) {
+            messageArea.textContent = `FA with User ID ${userId} not found.`;
+            messageArea.style.color = 'red';
+            return;
+        }
+
+        if (faEntry.fa.type !== "NFA") {
+            let msg = `FA User ID ${userId} is already a DFA.`;
+            if (faEntry.isNFA) { // It's a DFA that was already converted from an NFA
+                msg = `FA User ID ${userId} is already a DFA (converted from an NFA). Do you want to re-convert its original NFA definition? (Re-conversion not implemented from original input yet if already DFA). Showing current DFA.`;
+                 // For now, just display its current DFA form. A more complex setup would re-load original NFA input.
+                currentFa = faEntry; // Set currentFa to this entry
+                sourceNfaIdSpan.textContent = currentFa.id;
+                displayFaDetails(currentFa.fa, 'converted-dfa-display-text', 'converted-dfa-display-visualization');
+                displayArea.classList.remove('hidden');
+                messageArea.textContent = msg;
+                messageArea.style.color = 'orange';
+                return;
+            }
+            messageArea.textContent = msg;
+            messageArea.style.color = 'orange';
+            return;
+        }
+
+        try {
+            const convertedDFA = convertNFAtoDFA(faEntry.fa);
+            // We are about to modify faEntry, so let's make currentFa point to it
+            currentFa = faEntry;
+            currentFa.fa = convertedDFA; // Update the FA object within the entry
+            currentFa.isNFA = true;      // Mark that this DFA originated from an NFA
+
+            sourceNfaIdSpan.textContent = currentFa.id;
+            displayFaDetails(convertedDFA, 'converted-dfa-display-text', 'converted-dfa-display-visualization');
+            displayArea.classList.remove('hidden');
+            messageArea.textContent = `NFA User ID ${userId} converted successfully. You can save this DFA now.`;
+            messageArea.style.color = 'green';
+            // User can now click "Save This Converted DFA" button which calls saveCurrentFa()
+        } catch (error) {
+            console.error("Error during NFA by ID conversion:", error);
+            messageArea.textContent = 'Error converting NFA: ' + error.message;
+            messageArea.style.color = 'red';
+        }
+    }
+
+
+    async function checkFaForTest() {
+        // ... (existing implementation)
+        const userId = parseInt(document.getElementById('test-user-id').value);
+        if (isNaN(userId) || userId <= 0) {
+            alert('Please enter a valid User ID.'); return;
+        }
         const faEntry = savedFas.find(fa => fa.id === userId);
         if (!faEntry) {
             alert(`FA with User ID ${userId} not found.`);
-            document.getElementById('fa-details-for-test').classList.add('hidden');
-            return;
+            document.getElementById('fa-details-for-test').classList.add('hidden'); return;
         }
-
-        lastTestedFaEntry = faEntry; // Store the full FA entry for testing
+        lastTestedFaEntry = faEntry;
         displayFaDetails(faEntry.fa, 'display-fa-for-test-text', 'display-fa-for-test-visualization');
         document.getElementById('fa-details-for-test').classList.remove('hidden');
         document.getElementById('acceptance-result').textContent = '';
@@ -419,43 +438,29 @@ document.addEventListener('DOMContentLoaded', () => {
         rejectionCount = 0;
     }
 
-    /**
-     * Tests a string for acceptance by the currently loaded FA.
-     */
     async function testStringForAcceptance() {
+        // ... (existing implementation)
         if (!lastTestedFaEntry) {
-            alert('Please load an FA first by entering its User ID and clicking "Load FA".');
-            return;
+            alert('Please load an FA first.'); return;
         }
-
-        const inputString = document.getElementById('test-string-input').value.trim();
-        // Allow empty string testing, so no check for !inputString here
-
+        const inputString = document.getElementById('test-string-input').value; // No trim to allow empty string
         let accepted = false;
         if (lastTestedFaEntry.fa.type === "DFA") {
             accepted = testStringAcceptanceDFA(lastTestedFaEntry.fa, inputString);
         } else if (lastTestedFaEntry.fa.type === "NFA") {
             accepted = testStringAcceptanceNFA(lastTestedFaEntry.fa, inputString);
         } else {
-            alert('Unknown FA type for testing. Cannot test string.');
-            return;
+            alert('Unknown FA type for testing.'); return;
         }
-
         const resultElement = document.getElementById('acceptance-result');
+        resultElement.textContent = `String "${inputString}" is ${accepted ? "ACCEPTED" : "REJECTED"}.`;
+        resultElement.className = accepted ? 'accepted' : 'rejected'; // For styling via CSS
+        
+        lastTestedFaEntry.stringTestResults.push({ testString: inputString, accepted: accepted, timestamp: new Date().toISOString() });
+        saveFas();
+
         const rejectionOptions = document.getElementById('rejection-options');
         const saveTestResultBtn = document.getElementById('btn-save-test-result');
-
-        resultElement.textContent = `String "${inputString}" is ${accepted ? "ACCEPTED" : "REJECTED"}.`;
-        resultElement.style.color = accepted ? 'green' : 'red';
-
-        // Add test result to the current FA entry
-        lastTestedFaEntry.stringTestResults.push({
-            testString: inputString,
-            accepted: accepted,
-            timestamp: new Date().toISOString()
-        });
-        saveFas(); // Save updated test results to localStorage
-
         if (accepted) {
             saveTestResultBtn.classList.remove('hidden');
             rejectionCount = 0;
@@ -463,163 +468,155 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             saveTestResultBtn.classList.add('hidden');
             rejectionCount++;
-
             if (rejectionCount >= 3) {
                 rejectionOptions.classList.remove('hidden');
             } else {
                 rejectionOptions.classList.add('hidden');
             }
         }
-        document.getElementById('test-string-input').value = '';
+        // document.getElementById('test-string-input').value = ''; // Keep string for reference? Or clear. User request implies clear.
     }
 
-    /**
-     * Confirms saving the last test result and exits to main menu.
-     */
     async function saveLastTestedResult() {
-        // The result is already saved by testStringForAcceptance, so this button
-        // just confirms and exits.
+        // ... (existing implementation)
         alert("Test result logged and saved.");
         showGui(mainMenu);
     }
 
-    /**
-     * Handles minimization of a DFA by User ID.
-     */
     async function handleMinimizeDfa() {
+        // ... (existing implementation)
         const userId = parseInt(document.getElementById('minimize-user-id').value);
         if (isNaN(userId) || userId <= 0) {
-            alert('Please enter a valid User ID (a positive number).');
-            return;
+            alert('Please enter a valid User ID.'); return;
         }
-
         const faEntry = savedFas.find(fa => fa.id === userId);
         if (!faEntry) {
             alert(`FA with User ID ${userId} not found.`);
-            document.getElementById('minimized-dfa-display').classList.add('hidden');
-            return;
+            document.getElementById('minimized-dfa-display').classList.add('hidden'); return;
         }
-
-        const determinismCheckResult = checkDeterminism(faEntry.fa);
-        if (!determinismCheckResult.isDFA) {
-            alert('Cannot minimize: The selected FA is not a DFA. Please convert NFA to DFA first if applicable. Reasons: \n- ' + determinismCheckResult.issues.join('\n- '));
-            document.getElementById('minimized-dfa-display').classList.add('hidden');
-            return;
+        // Check if it's a DFA before minimizing
+        if (faEntry.fa.type !== "DFA") {
+             const determinismCheckResult = checkDeterminism(faEntry.fa); // Re-check, though type should be reliable
+             alert('Cannot minimize: The selected FA is not a DFA. Please convert NFA to DFA first if applicable. Reasons: \n- ' + determinismCheckResult.issues.join('\n- '));
+             document.getElementById('minimized-dfa-display').classList.add('hidden');
+             return;
         }
 
         try {
-            const minimizedDFA = minimizeDFA(faEntry.fa);
-            faEntry.minimizedDfa = minimizedDFA; // Store the actual minimized DFA object
+            const minimizedDFA = minimizeDFA(faEntry.fa); // minimizeDFA is from minimization.js
+            faEntry.minimizedDfa = minimizedDFA;
             displayFaDetails(minimizedDFA, 'display-minimized-dfa-text', 'display-minimized-dfa-visualization');
             document.getElementById('minimized-dfa-display').classList.remove('hidden');
-            alert(`DFA User ID ${userId} minimized successfully!`);
-            saveFas(); // Save changes after minimization
+            alert(`DFA User ID ${userId} minimized successfully! Changes saved.`);
+            saveFas(); // Save the FA entry with its new minimizedDfa
         } catch (error) {
             console.error("Error during DFA minimization:", error);
-            alert('Error during DFA minimization: ' + error.message);
+            alert('Error minimizing DFA: ' + error.message);
             document.getElementById('minimized-dfa-display').classList.add('hidden');
         }
     }
 
-    /**
-     * Handles the removal of an FA from the savedFas array and localStorage.
-     * @param {Event} event - The click event from the remove button.
-     */
     function handleRemoveFa(event) {
+        // ... (existing implementation)
         const faIdToRemove = parseInt(event.target.dataset.id);
-        if (isNaN(faIdToRemove)) {
-            console.error("Attempted to remove FA with invalid ID.");
-            return;
-        }
-
-        if (confirm(`Are you sure you want to remove FA with User ID ${faIdToRemove}?`)) {
+        if (isNaN(faIdToRemove)) return;
+        if (confirm(`Are you sure you want to remove FA User ID ${faIdToRemove}?`)) {
             savedFas = savedFas.filter(faEntry => faEntry.id !== faIdToRemove);
-            saveFas(); // Update localStorage
-            loadAndDisplayAllFas(); // Refresh the displayed table
-            alert(`FA User ID ${faIdToRemove} removed successfully.`);
+            saveFas();
+            loadAndDisplayAllFas(); // Refresh table
+            alert(`FA User ID ${faIdToRemove} removed.`);
         }
     }
 
-    /**
-     * Loads all saved FAs and displays them in a table format in the 'Show All FAs' section.
-     */
     function loadAndDisplayAllFas() {
         const displayDiv = document.getElementById('all-fas-display');
-        displayDiv.innerHTML = ''; // Clear previous content
+        const downloadBtn = document.getElementById('btn-download-all-fas');
+        displayDiv.innerHTML = '';
 
         if (savedFas.length === 0) {
             displayDiv.textContent = 'No Finite Automata saved yet.';
+            downloadBtn.classList.add('hidden');
             return;
         }
+        downloadBtn.classList.remove('hidden');
 
         const table = document.createElement('table');
         table.classList.add('fa-data-table');
-
-        // Create table header
         const thead = table.createTHead();
         const headerRow = thead.insertRow();
-        // Updated headers to reflect new visualization columns
-        const headers = ["User ID", "FA (Original Input)", "Original FA Visualization", "NFA Status", "Minimized DFA Visualization", "String Test Results", "Actions"];
+        const headers = ["User ID", "Original Input", "Current FA Viz", "NFA Origin", "Minimized DFA Viz", "String Tests", "Actions"];
         headers.forEach(text => {
             let th = document.createElement('th');
             th.textContent = text;
             headerRow.appendChild(th);
         });
-        table.appendChild(thead);
 
-        // Create table body
         const tbody = table.createTBody();
         savedFas.forEach(faEntry => {
             const row = tbody.insertRow();
 
-            // User ID
-            let cellId = row.insertCell();
-            cellId.textContent = faEntry.id;
+            row.insertCell().textContent = faEntry.id;
 
-            // FA (Original Input)
             let cellOriginalInput = row.insertCell();
             cellOriginalInput.classList.add('original-input-cell');
             cellOriginalInput.innerHTML = `
-                <strong>Type:</strong> ${faEntry.fa.type}<br>
+                <strong>Type (Original):</strong> ${faEntry.originalInput.type || (faEntry.isNFA && faEntry.fa.type === "NFA" ? "NFA" : "DFA")}<br>
                 <strong>States:</strong> ${faEntry.originalInput.states}<br>
                 <strong>Alphabet:</strong> ${faEntry.originalInput.alphabet}<br>
                 <strong>Start:</strong> ${faEntry.originalInput.startState}<br>
                 <strong>Final:</strong> ${faEntry.originalInput.finalStates}<br>
                 <strong>Transitions:</strong> ${faEntry.originalInput.transitions}
             `;
-
-            // Original FA Visualization
-            let cellOriginalFaVis = row.insertCell();
-            const originalFaVizContainerId = `viz-original-fa-${faEntry.id}`;
-            const originalFaVizDiv = document.createElement('div');
-            originalFaVizDiv.id = originalFaVizContainerId;
-            // Add a class for styling, e.g., for smaller containers in the table
-            originalFaVizDiv.classList.add('visualization-container-inline'); 
-            cellOriginalFaVis.appendChild(originalFaVizDiv);
+            
+            // Current FA Visualization (could be original NFA, original DFA, or converted DFA)
+            let cellCurrentFaViz = row.insertCell();
+            const currentFaVizContainerId = `viz-current-fa-${faEntry.id}`;
+            const currentFaVizDiv = document.createElement('div');
+            currentFaVizDiv.id = currentFaVizContainerId;
+            currentFaVizDiv.classList.add('visualization-container-inline');
+            cellCurrentFaViz.appendChild(currentFaVizDiv);
             if (faEntry.fa) {
-                // Use setTimeout to ensure the div is attached to the DOM before vis.js tries to render
-                setTimeout(() => visualizeFA(faEntry.fa, originalFaVizContainerId), 0);
-            } else {
-                originalFaVizDiv.textContent = 'N/A';
-            }
+                setTimeout(() => visualizeFA(faEntry.fa, currentFaVizContainerId, false), 0);
+                const viewLargerBtn = document.createElement('button');
+                viewLargerBtn.textContent = 'View Larger';
+                viewLargerBtn.classList.add('btn-view-larger');
+                viewLargerBtn.onclick = () => {
+                    displayFaDetails(faEntry.fa, null, 'modal-visualization-container', true);
+                    visualizationModal.classList.remove('hidden');
+                    visualizationModal.style.display = 'flex';
+                };
+                cellCurrentFaViz.appendChild(viewLargerBtn);
+            } else { cellCurrentFaViz.textContent = 'N/A'; }
 
 
-            // NFA Status
-            let cellNfaStatus = row.insertCell();
-            cellNfaStatus.textContent = faEntry.isNFA ? 'Yes' : 'No';
+            // NFA Origin Status
+            let cellNfaOrigin = row.insertCell();
+            // faEntry.isNFA = true means it originated as an NFA (even if faEntry.fa is now a DFA)
+            // faEntry.isNFA = false means it was input as a DFA
+            cellNfaOrigin.textContent = faEntry.isNFA ? 'Yes' : 'No';
+
 
             // Minimized DFA Visualization
-            let cellMinimizedDfaVis = row.insertCell();
-            const minimizedDfaVizContainerId = `viz-minimized-dfa-${faEntry.id}`;
-            const minimizedDfaVizDiv = document.createElement('div');
-            minimizedDfaVizDiv.id = minimizedDfaVizContainerId;
-            minimizedDfaVizDiv.classList.add('visualization-container-inline'); 
-            cellMinimizedDfaVis.appendChild(minimizedDfaVizDiv);
-            if (faEntry.minimizedDfa) { // Check if minimizedDfa object exists
-                setTimeout(() => visualizeFA(faEntry.minimizedDfa, minimizedDfaVizContainerId), 0);
-            } else {
-                minimizedDfaVizDiv.textContent = 'N/A';
-            }
+            let cellMinimizedDfaViz = row.insertCell();
+            if (faEntry.minimizedDfa) {
+                const minimizedDfaVizContainerId = `viz-minimized-dfa-${faEntry.id}`;
+                const minimizedDfaVizDiv = document.createElement('div');
+                minimizedDfaVizDiv.id = minimizedDfaVizContainerId;
+                minimizedDfaVizDiv.classList.add('visualization-container-inline');
+                cellMinimizedDfaViz.appendChild(minimizedDfaVizDiv);
+                setTimeout(() => visualizeFA(faEntry.minimizedDfa, minimizedDfaVizContainerId, false), 0);
+
+                const viewLargerBtnMin = document.createElement('button');
+                viewLargerBtnMin.textContent = 'View Larger';
+                viewLargerBtnMin.classList.add('btn-view-larger');
+                viewLargerBtnMin.onclick = () => {
+                    displayFaDetails(faEntry.minimizedDfa, null, 'modal-visualization-container', true);
+                    visualizationModal.classList.remove('hidden');
+                    visualizationModal.style.display = 'flex';
+                };
+                cellMinimizedDfaViz.appendChild(viewLargerBtnMin);
+            } else { cellMinimizedDfaViz.textContent = 'N/A'; }
+
 
             // String Test Results
             let cellTestResults = row.insertCell();
@@ -632,27 +629,55 @@ document.addEventListener('DOMContentLoaded', () => {
                     ul.appendChild(li);
                 });
                 cellTestResults.appendChild(ul);
-            } else {
-                cellTestResults.textContent = 'No tests yet.';
-            }
+            } else { cellTestResults.textContent = 'No tests yet.'; }
 
-            // Actions Cell
+            // Actions
             let cellActions = row.insertCell();
             const removeButton = document.createElement('button');
             removeButton.textContent = 'Remove';
             removeButton.classList.add('btn-remove-fa');
-            removeButton.dataset.id = faEntry.id; // Store FA ID in a data attribute
-            removeButton.addEventListener('click', handleRemoveFa); // Attach event listener
+            removeButton.dataset.id = faEntry.id;
+            removeButton.addEventListener('click', handleRemoveFa);
             cellActions.appendChild(removeButton);
-
-            // You can add "Visualize" buttons here if you want to open a larger view
-            // For now, the inline visualization is directly rendered.
         });
-        table.appendChild(tbody);
         displayDiv.appendChild(table);
+    }
+
+    /**
+     * Downloads all saved FAs as a JSON file.
+     */
+    function downloadAllFasAsJson() {
+        if (savedFas.length === 0) {
+            alert("No FAs to download.");
+            return;
+        }
+        // Prepare data for download, ensuring FA objects are properly serialized using their toJSON methods
+        const dataToDownload = JSON.stringify(
+            savedFas.map(faEntry => ({
+                id: faEntry.id,
+                originalInput: faEntry.originalInput,
+                fa: faEntry.fa ? faEntry.fa.toJSON() : null, // Serialize current FA
+                isNFA: faEntry.isNFA, // NFA origin status
+                minimizedDfa: faEntry.minimizedDfa ? faEntry.minimizedDfa.toJSON() : null, // Serialize minimized DFA
+                stringTestResults: faEntry.stringTestResults
+            })),
+            null, // Replacer function (null for default)
+            2     // Indentation space for pretty printing
+        );
+
+        const blob = new Blob([dataToDownload], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'saved-fas.json'; // Filename for download
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        alert("All FAs data prepared for download as 'saved-fas.json'. Check your browser's downloads.");
     }
 
     // --- Initial Load ---
     loadSavedFas();
-    showGui(mainMenu); // Start at the main menu
+    showGui(mainMenu);
 });

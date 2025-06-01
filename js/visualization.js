@@ -12,36 +12,54 @@ function visualizeFA(fa, containerId) {
         return;
     }
 
-    // Clear previous visualization
     container.innerHTML = '';
-    // Ensure the container has a minimum height for vis.js to render
-    container.style.height = '300px';
-    container.style.width = '100%'; // Or a fixed width if preferred
+    // Ensure the container has an appropriate height, CSS might override for specific containers
+    if (!container.style.height || container.style.height === '0px') {
+        container.style.height = '300px'; // Default height if not set by CSS for this specific ID
+    }
+    container.style.width = '100%';
 
     const nodes = [];
     const edges = [];
 
-    // Create nodes for each state
     fa.states.forEach(state => {
         let label = state.name;
-        let color = '#97C2E0'; // Default state color
         let shape = 'circle';
         let fontColor = 'black';
-        let borderColor = '#2B7CE9';
+        let nodeBackgroundColor = '#97C2E0'; // Default state color
+        let nodeBorderColor = '#2B7CE9';
+
+        // Check for Trap/Dead state first for color
+        if (state.name === 'TrapState' || state.name === 'dead') {
+            nodeBackgroundColor = '#ff6961'; // Light Red
+            nodeBorderColor = '#dc143c';   // Crimson Red border
+        } else if (state.equals(fa.startState)) {
+            nodeBackgroundColor = '#FFD700'; // Gold for start state
+            nodeBorderColor = '#DAA520';
+        }
 
         if (fa.isFinal(state)) {
             shape = 'doublecircle'; // Indicate final state
-        }
-        if (state.equals(fa.startState)) {
-            color = { background: '#FFD700', border: '#DAA520' }; // Gold for start state
-            borderColor = '#DAA520';
+            // If it's a final trap state, it will be red and doublecircle.
+            // If it's a final start state, it will be gold and doublecircle.
         }
 
         nodes.push({
             id: state.name,
             label: label,
             shape: shape,
-            color: color,
+            color: {
+                background: nodeBackgroundColor,
+                border: nodeBorderColor,
+                highlight: {
+                    background: nodeBackgroundColor,
+                    border: nodeBorderColor
+                },
+                hover: {
+                    background: nodeBackgroundColor,
+                    border: nodeBorderColor
+                }
+            },
             font: { color: fontColor },
             borderWidth: 2,
             shadow: {
@@ -54,29 +72,29 @@ function visualizeFA(fa, containerId) {
         });
     });
 
-    // Add a dummy node and edge for the start state pointer
     if (fa.startState) {
-        nodes.push({ id: 'start_pointer', label: '', shape: 'text', x: -150, y: 0, physics: false, fixed: true, size: 0 });
-        edges.push({
-            from: 'start_pointer',
-            to: fa.startState.name,
-            arrows: 'to',
-            color: { color: 'black' },
-            dashes: true,
-            length: 100 // Adjust length of the start arrow
-        });
+        // Check if start_pointer already exists to prevent duplicates if visualizeFA is called multiple times on same container
+        if (!nodes.some(node => node.id === 'start_pointer')) {
+            nodes.push({ id: 'start_pointer', label: '', shape: 'text', x: -150, y: 0, physics: false, fixed: true, size: 0 });
+            edges.push({
+                from: 'start_pointer',
+                to: fa.startState.name,
+                arrows: 'to',
+                color: { color: 'black' },
+                dashes: true,
+                length: 100,
+                smooth: false // Straight line for start pointer
+            });
+        }
     }
 
-    // Group transitions with the same source and destination to consolidate labels
-    const groupedTransitions = new Map(); // Key: `${from.name}-${to.name}` -> Array of symbols
-
+    const groupedTransitions = new Map();
     fa.transitions.forEach(transition => {
         transition.toStates.forEach(toState => {
             const key = `${transition.fromState.name}-${toState.name}`;
             if (!groupedTransitions.has(key)) {
                 groupedTransitions.set(key, []);
             }
-            // Use 'ε' for epsilon, otherwise the symbol
             groupedTransitions.get(key).push(transition.symbol === 'epsilon' ? 'ε' : transition.symbol);
         });
     });
@@ -88,16 +106,21 @@ function visualizeFA(fa, containerId) {
             to: toName,
             label: symbols.join(', '),
             arrows: 'to',
-            font: { align: 'middle' },
-            color: { color: '#848484' },
+            font: { align: 'middle', strokeWidth: 0, color: 'black' /* Ensure label color */ },
+            color: { color: '#848484', hover: '#505050', highlight: '#505050' },
+            selfReference: { // Settings for loops on a single node
+                size: 20,
+                angle: Math.PI / 4,
+                renderBehindTheNode: true
+            },
             smooth: {
                 enabled: true,
-                type: 'dynamic' // 'dynamic' adjusts curvature based on number of edges
+                type: (fromName === toName) ? 'curvedCW' : 'dynamic', // Use curved for self-loops
+                roundness: (fromName === toName) ? 0.7 : 0.5
             }
         });
     });
 
-    // Create a network
     const data = {
         nodes: new vis.DataSet(nodes),
         edges: new vis.DataSet(edges)
@@ -106,34 +129,39 @@ function visualizeFA(fa, containerId) {
     const options = {
         edges: {
             font: {
-                background: 'white' // Make labels readable over lines
+                background: 'white'
             }
         },
         physics: {
             enabled: true,
             barnesHut: {
-                gravitationalConstant: -2000,
-                centralGravity: 0.3,
-                springLength: 120, // Increased spring length for more spacing
+                gravitationalConstant: -3000, // Adjusted for better spacing
+                centralGravity: 0.25,
+                springLength: 150,
                 springConstant: 0.05,
                 damping: 0.09,
-                avoidOverlap: 0.5 // Try to prevent node overlap
+                avoidOverlap: 0.6 // Increased to prevent overlap
             },
-            solver: 'barnesHut'
+            solver: 'barnesHut',
+            stabilization: { // Speed up stabilization
+                iterations: 1000,
+                fit: true
+            }
         },
         layout: {
-            // For simple linear FAs, hierarchical can look good.
-            // For general, non-linear FAs, let physics handle it.
-            // hierarchical: { enabled: true, direction: 'LR', sortMethod: 'directed' }
-            // If you enable hierarchical layout, disable physics or configure it carefully.
+            // randomSeed: undefined, // Use default or set one for consistent layouts
+            improvedLayout: true
+        },
+        interaction: {
+            hover: true, // Enable hover effects
+            tooltipDelay: 200
         }
     };
 
     const network = new vis.Network(container, data, options);
 
-    // Optional: After network is stable, disable physics and fit to view
     network.once('stabilizationIterationsDone', function() {
-        network.setOptions( { physics: false } );
-        network.fit(); // Zoom to fit all nodes
+        // network.setOptions( { physics: false } ); // Keep physics for dragging? Or disable.
+        network.fit();
     });
 }

@@ -13,6 +13,7 @@
         <div id="main-menu" class="gui-section">
             <h2>Main Menu</h2>
             <button id="btn-input-fa">Input FA</button>
+            <button id="btn-convert-nfa-by-id">Convert NFA by ID</button>
             <button id="btn-test-string">Test String Acceptance</button>
             <button id="btn-minimize-dfa">Minimize DFA</button>
             <button id="btn-show-all-fas">Show All Saved FAs</button>
@@ -64,6 +65,27 @@
             <div class="button-group">
                 <button id="btn-save-dfa">Save DFA</button>
                 <button id="btn-dfa-gui-exit">Exit</button>
+            </div>
+        </div>
+
+        <div id="convert-nfa-by-id-gui" class="gui-section hidden">
+            <h2>Convert Saved NFA to DFA</h2>
+            <div class="input-group">
+                <label for="convert-nfa-user-id-input">Enter NFA User ID:</label>
+                <input type="number" id="convert-nfa-user-id-input" placeholder="1">
+                <button id="btn-load-and-convert-nfa">Load & Convert NFA</button>
+            </div>
+            <div id="converted-dfa-display-area" class="hidden">
+                <h3>Resulting DFA (from NFA ID: <span id="source-nfa-id"></span>)</h3>
+                <pre id="converted-dfa-display-text"></pre>
+                <div id="converted-dfa-display-visualization" class="visualization-container"></div>
+                <div class="button-group">
+                    <button id="btn-save-converted-dfa">Save This Converted DFA</button>
+                </div>
+            </div>
+            <p id="convert-nfa-message"></p>
+            <div class="button-group">
+                <button id="btn-convert-nfa-by-id-gui-exit">Exit to Main Menu</button>
             </div>
         </div>
 
@@ -119,11 +141,22 @@
             <div id="all-fas-display" class="fa-table-container">
                 </div>
             <div class="button-group">
+                <button id="btn-download-all-fas" class="hidden">Download All Info</button> 
                 <button id="btn-show-all-fas-exit">Exit to Main Menu</button>
             </div>
         </div>
 
-    </div> <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    </div>
+
+    <div id="visualization-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" id="close-visualization-modal">&times;</span>
+            <h2>FA Visualization</h2>
+            <div id="modal-visualization-container" class="visualization-container large-visualization"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <script src="js/fa.js"></script>
     <script src="js/operations.js"></script>
     <script src="js/conversion.js"></script>
