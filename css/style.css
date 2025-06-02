@@ -2,594 +2,621 @@
 
 /* --- General Body and Font --- */
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* Modern font stack */
-    margin: 0;
-    padding: 20px; /* Reduced padding around the entire body */
-    background: linear-gradient(135deg, #e0efff 0%, #f0f7ff 100%); /* Subtle blue gradient background */
-    color: #343a40; /* Darker text for better contrast */
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Align to the top */
-    min-height: 100vh;
-    font-size: 15px; /* Base font size */
-    line-height: 1.5; /* Reduced line height for compactness */
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol"; /* Modern font stack */
+  margin: 0;
+  padding: 20px; /* Reduced padding around the entire body */
+  background: linear-gradient(
+    135deg,
+    #e0efff 0%,
+    #f0f7ff 100%
+  ); /* Subtle blue gradient background */
+  color: #343a40; /* Darker text for better contrast */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Align to the top */
+  min-height: 100vh;
+  font-size: 15px; /* Base font size */
+  line-height: 1.5; /* Reduced line height for compactness */
+}
+
+/* Make the visualization containers more visible */
+.visualization-container {
+  border: 2px solid #d3e0ed;
+  background-color: #f8fafc;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure the network graph uses all available space */
+.visualization-container > div {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 /* --- Container --- */
 .container {
-    background-color: #ffffff;
-    padding: 30px; /* Reduced padding */
-    border-radius: 14px; /* Slightly less rounded corners */
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.07);
-    width: 100%;
-    max-width: 1300px; /* Reverted to previous wider main container */
-    margin-top: 35px; /* Reduced margin at the top */
-    margin-bottom: 35px; /* Reduced margin at the bottom */
-    box-sizing: border-box;
-    position: relative;
-    z-index: 1;
+  background-color: #ffffff;
+  padding: 30px; /* Reduced padding */
+  border-radius: 14px; /* Slightly less rounded corners */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.07);
+  width: 100%;
+  max-width: 1300px; /* Reverted to previous wider main container */
+  margin-top: 35px; /* Reduced margin at the top */
+  margin-bottom: 35px; /* Reduced margin at the bottom */
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 /* --- Headings --- */
-h1 { /* Main page title */
-    color: #004085;
-    text-align: center;
-    margin-bottom: 30px; /* Reduced space below main title */
-    font-size: 2.4em; /* Slightly smaller main title */
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.03);
+h1 {
+  /* Main page title */
+  color: #004085;
+  text-align: center;
+  margin-bottom: 30px; /* Reduced space below main title */
+  font-size: 2.4em; /* Slightly smaller main title */
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.03);
 }
 
-h2 { /* Section titles */
-    color: #212529;
-    text-align: center;
-    margin-bottom: 28px; /* Reduced space below section titles */
-    font-size: 1.8em; /* Slightly smaller section titles */
-    font-weight: 700;
+h2 {
+  /* Section titles */
+  color: #212529;
+  text-align: center;
+  margin-bottom: 28px; /* Reduced space below section titles */
+  font-size: 1.8em; /* Slightly smaller section titles */
+  font-weight: 700;
 }
 
-h3 { /* Sub-section titles */
-    color: #495057;
-    margin-bottom: 15px; /* Reduced space */
-    font-size: 1.2em; /* Slightly smaller */
-    font-weight: 600;
-    text-align: center;
+h3 {
+  /* Sub-section titles */
+  color: #495057;
+  margin-bottom: 15px; /* Reduced space */
+  font-size: 1.2em; /* Slightly smaller */
+  font-weight: 600;
+  text-align: center;
 }
 
 /* --- GUI Sections --- */
 .gui-section {
-    background-color: #fdfdfd;
-    padding: 25px; /* Reduced padding */
-    margin-bottom: 25px; /* Reduced space between sections */
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
-    border: 1px solid #e9ecef;
+  background-color: #fdfdfd;
+  padding: 25px; /* Reduced padding */
+  margin-bottom: 25px; /* Reduced space between sections */
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02);
+  border: 1px solid #e9ecef;
 }
 
 .hidden {
-    display: none !important;
+  display: none !important;
 }
 
 /* --- Main Menu Specific Layout --- */
 #main-menu {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px; /* Reduced space between buttons */
-    padding: 30px; /* Reduced padding */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px; /* Reduced space between buttons */
+  padding: 30px; /* Reduced padding */
 }
 
 #main-menu h2 {
-    font-size: 2em; /* Slightly smaller title for main menu */
-    color: #004085;
-    margin-bottom: 20px; /* Reduced margin */
+  font-size: 2em; /* Slightly smaller title for main menu */
+  color: #004085;
+  margin-bottom: 20px; /* Reduced margin */
 }
 
 /* --- Input Groups and Labels --- */
 .input-group {
-    margin-bottom: 18px; /* Reduced space between input groups */
+  margin-bottom: 18px; /* Reduced space between input groups */
 }
 
 .input-group label {
-    display: block;
-    margin-bottom: 6px; /* Reduced space between label and input */
-    font-weight: 600;
-    color: #495057;
-    font-size: 0.95rem; /* Slightly smaller font size */
+  display: block;
+  margin-bottom: 6px; /* Reduced space between label and input */
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.95rem; /* Slightly smaller font size */
 }
 
 .input-group input[type="text"],
 .input-group input[type="number"],
 .input-group textarea {
-    width: calc(100% - 20px); /* Adjusted width for padding and border */
-    padding: 10px; /* Reduced padding for inputs */
-    border: 1px solid #c9d8e7;
-    border-radius: 6px; /* Slightly less rounded */
-    font-size: 0.95rem; /* Slightly smaller font size */
-    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    box-sizing: border-box;
+  width: calc(100% - 20px); /* Adjusted width for padding and border */
+  padding: 10px; /* Reduced padding for inputs */
+  border: 1px solid #c9d8e7;
+  border-radius: 6px; /* Slightly less rounded */
+  font-size: 0.95rem; /* Slightly smaller font size */
+  transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  box-sizing: border-box;
 }
 
 .input-group input[type="text"]:focus,
 .input-group input[type="number"]:focus,
 .input-group textarea:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
 }
 
 .input-group textarea {
-    resize: vertical;
-    min-height: 90px; /* Reduced default textarea height */
+  resize: vertical;
+  min-height: 90px; /* Reduced default textarea height */
 }
 
 /* --- Button Styling --- */
 .button-group {
-    text-align: center;
-    margin-top: 30px; /* Reduced space above button groups */
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px; /* Reduced space between buttons */
+  text-align: center;
+  margin-top: 30px; /* Reduced space above button groups */
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px; /* Reduced space between buttons */
 }
 
 button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 20px; /* Reduced padding */
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem; /* Slightly smaller font */
-    font-weight: 700;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-    min-width: 120px; /* Reduced minimum width for buttons */
-    text-transform: uppercase;
-    letter-spacing: 0.015em;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px; /* Reduced padding */
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem; /* Slightly smaller font */
+  font-weight: 700;
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  min-width: 120px; /* Reduced minimum width for buttons */
+  text-transform: uppercase;
+  letter-spacing: 0.015em;
 }
 
 button:hover {
-    background-color: #0056b3;
-    transform: translateY(-3px); /* Slightly less pronounced lift effect */
-    box-shadow: 0 8px 20px rgba(0,0,0,0.18), 0 3px 8px rgba(0,0,0,0.08);
+  background-color: #0056b3;
+  transform: translateY(-3px); /* Slightly less pronounced lift effect */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18), 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.03);
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    transform: translateY(0);
-    box-shadow: none;
-    opacity: 0.6;
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: translateY(0);
+  box-shadow: none;
+  opacity: 0.6;
 }
 
 /* Specific main menu button sizing */
 #main-menu button {
-    width: 80%;
-    max-width: 380px; /* Reduced max width */
-    padding: 14px 20px; /* Reduced padding */
-    font-size: 1.05rem; /* Slightly smaller font */
+  width: 80%;
+  max-width: 380px; /* Reduced max width */
+  padding: 14px 20px; /* Reduced padding */
+  font-size: 1.05rem; /* Slightly smaller font */
 }
 
 /* --- Preformatted Text Display (FA Details) --- */
 pre {
-    background-color: #eef5fb;
-    border: 1px solid #dbe8f3;
-    padding: 15px; /* Reduced padding */
-    border-radius: 8px; /* Slightly less rounded */
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-family: 'Fira Code', 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
-    font-size: 0.9em; /* Slightly smaller font size */
-    max-height: 250px; /* Reduced max height */
-    overflow-y: auto;
-    margin-bottom: 18px; /* Reduced space below pre block */
-    box-shadow: inset 0 1px 4px rgba(0,0,0,0.02);
+  background-color: #eef5fb;
+  border: 1px solid #dbe8f3;
+  padding: 15px; /* Reduced padding */
+  border-radius: 8px; /* Slightly less rounded */
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: "Fira Code", "Consolas", "Monaco", "Andale Mono", "Ubuntu Mono",
+    monospace;
+  font-size: 0.9em; /* Slightly smaller font size */
+  max-height: 250px; /* Reduced max height */
+  overflow-y: auto;
+  margin-bottom: 18px; /* Reduced space below pre block */
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.02);
 }
 
 /* --- Acceptance Result --- */
 #acceptance-result {
-    font-weight: 700;
-    margin-top: 18px; /* Reduced margin */
-    text-align: center;
-    font-size: 1.05em; /* Slightly smaller font */
-    padding: 10px; /* Reduced padding */
-    border-radius: 6px; /* Slightly less rounded */
-    border: 1px solid transparent;
-    color: #28a745; /* Green for acceptance */
-    background-color: #e6f9ea; /* Light green background */
+  font-weight: 700;
+  margin-top: 18px; /* Reduced margin */
+  text-align: center;
+  font-size: 1.05em; /* Slightly smaller font */
+  padding: 10px; /* Reduced padding */
+  border-radius: 6px; /* Slightly less rounded */
+  border: 1px solid transparent;
+  color: #28a745; /* Green for acceptance */
+  background-color: #e6f9ea; /* Light green background */
 }
 #acceptance-result.rejected {
-    color: #dc3545; /* Red color for rejected */
-    font-weight: 600;
-    background-color: #f8d7da; /* Light red background */
+  color: #dc3545; /* Red color for rejected */
+  font-weight: 600;
+  background-color: #f8d7da; /* Light red background */
 }
 
 /* --- Visualization Container --- */
 .visualization-container {
-    width: 100%;
-    height: 300px; /* Reduced fixed height */
-    border: 1px solid #d3e0ed;
-    margin-top: 18px; /* Reduced margin */
-    margin-bottom: 18px; /* Reduced margin */
-    background-color: #ffffff;
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+  width: 100%;
+  height: 300px; /* Reduced fixed height */
+  border: 1px solid #d3e0ed;
+  margin-top: 18px; /* Reduced margin */
+  margin-bottom: 18px; /* Reduced margin */
+  background-color: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
 }
 
 /* --- Table Styles for "Show All FAs" --- */
 .fa-table-container {
-    overflow-x: auto;
-    margin-top: 20px;
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
-    background-color: #ffffff;
+  overflow-x: auto;
+  margin-top: 20px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+  background-color: #ffffff;
 }
 
 .fa-data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95em; /* Increased font size for table text */
-    min-width: 1100px; /* Reverted to previous minimum width */
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em; /* Increased font size for table text */
+  min-width: 1100px; /* Reverted to previous minimum width */
 }
 
 .fa-data-table th,
 .fa-data-table td {
-    border: 1px solid #e9ecef;
-    padding: 10px 12px; /* Reduced padding for cells */
-    text-align: left;
-    vertical-align: top;
-    white-space: nowrap;
+  border: 1px solid #e9ecef;
+  padding: 10px 12px; /* Reduced padding for cells */
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
 }
 
 .fa-data-table th {
-    background-color: #e0f2ff;
-    color: #004085;
-    font-weight: 700;
-    text-align: center;
-    padding: 12px; /* Reduced padding for headers */
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  background-color: #e0f2ff;
+  color: #004085;
+  font-weight: 700;
+  text-align: center;
+  padding: 12px; /* Reduced padding for headers */
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 .fa-data-table tbody tr:nth-child(even) {
-    background-color: #f9fbfd;
+  background-color: #f9fbfd;
 }
 
 .fa-data-table tbody tr:hover {
-    background-color: #e6f3ff;
+  background-color: #e6f3ff;
 }
 
 .fa-data-table img {
-    max-width: 120px; /* Reduced image width */
-    height: auto;
-    display: block;
-    margin: 0 auto;
-    border: 1px solid #cadbe8;
-    border-radius: 5px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  max-width: 120px; /* Reduced image width */
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border: 1px solid #cadbe8;
+  border-radius: 5px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .fa-data-table .original-input-cell {
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-height: 45px; /* Further reduced height for "Original Input" */
-    overflow-y: auto;
-    font-size: 1.2em; /* Increased font size for these cells */
-    line-height: 1.4;
-    background-color: #fcfcfc;
-    border-radius: 3px;
-    padding: 6px; /* Reduced padding */
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 45px; /* Further reduced height for "Original Input" */
+  overflow-y: auto;
+  font-size: 1.2em; /* Increased font size for these cells */
+  line-height: 1.4;
+  background-color: #fcfcfc;
+  border-radius: 3px;
+  padding: 6px; /* Reduced padding */
 }
 
 .fa-data-table .string-test-results-cell {
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-height: 80px; /* Kept at previous height for "String Tests" */
-    overflow-y: auto;
-    font-size: 1em; /* Increased font size for these cells */
-    line-height: 1.4;
-    background-color: #fcfcfc;
-    border-radius: 3px;
-    padding: 6px; /* Reduced padding */
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 80px; /* Kept at previous height for "String Tests" */
+  overflow-y: auto;
+  font-size: 1em; /* Increased font size for these cells */
+  line-height: 1.4;
+  background-color: #fcfcfc;
+  border-radius: 3px;
+  padding: 6px; /* Reduced padding */
 }
 
 .fa-data-table .string-test-results-cell ul {
-    list-style-type: none; /* Removed bullet points */
-    padding-left: 0; /* Removed indent */
-    margin: 0;
+  list-style-type: none; /* Removed bullet points */
+  padding-left: 0; /* Removed indent */
+  margin: 0;
 }
 
 .fa-data-table .string-test-results-cell li {
-    margin-bottom: 3px; /* Reduced margin */
-    font-size: 0.95em; /* Increased font size for list items */
-    /* Ensure text color is set by accepted/rejected classes */
+  margin-bottom: 3px; /* Reduced margin */
+  font-size: 0.95em; /* Increased font size for list items */
+  /* Ensure text color is set by accepted/rejected classes */
 }
 
 /* Ensure Accepted/Rejected colors are correctly applied */
 .fa-data-table .string-test-results-cell .accepted {
-    color: #28a745; /* Green color for accepted */
-    font-weight: 600;
+  color: #28a745; /* Green color for accepted */
+  font-weight: 600;
 }
 
 .fa-data-table .string-test-results-cell .rejected {
-    color: #dc3545; /* Red color for rejected */
-    font-weight: 600;
+  color: #dc3545; /* Red color for rejected */
+  font-weight: 600;
 }
-
 
 /* New style for the remove button */
 .btn-remove-fa {
-    background-color: #dc3545;
-    padding: 7px 14px; /* Reduced padding */
-    font-size: 0.9rem; /* Reduced font size */
-    margin: 5px; /* Reduced margin */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  background-color: #dc3545;
+  padding: 7px 14px; /* Reduced padding */
+  font-size: 0.9rem; /* Reduced font size */
+  margin: 5px; /* Reduced margin */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .btn-remove-fa:hover {
-    background-color: #c82333;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 /* Modal Styles */
 .modal {
-    display: flex;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7);
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
+  display: flex;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
 }
 
 .modal.hidden {
-    display: none !important;
+  display: none !important;
 }
 
 .modal-content {
-    background-color: #fefefe;
-    padding: 30px; /* Reduced padding */
-    border-radius: 14px; /* Slightly less rounded */
-    position: relative;
-    box-shadow: 0 10px 35px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.15);
-    max-height: 85vh; /* Reduced max modal height */
-    overflow-y: auto;
-    width: 90%;
-    max-width: 900px; /* Reduced max-width for visualization */
-    animation: fadeIn 0.3s ease-out;
+  background-color: #fefefe;
+  padding: 30px; /* Reduced padding */
+  border-radius: 14px; /* Slightly less rounded */
+  position: relative;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 85vh; /* Reduced max modal height */
+  overflow-y: auto;
+  width: 90%;
+  max-width: 900px; /* Reduced max-width for visualization */
+  animation: fadeIn 0.3s ease-out;
 }
 
 .close-button {
-    color: #6c757d;
-    font-size: 32px; /* Reduced font size */
-    position: absolute;
-    top: 15px; /* Reduced margin */
-    right: 18px; /* Reduced margin */
-    cursor: pointer;
-    transition: color 0.2s ease, transform 0.2s ease;
+  color: #6c757d;
+  font-size: 32px; /* Reduced font size */
+  position: absolute;
+  top: 15px; /* Reduced margin */
+  right: 18px; /* Reduced margin */
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .large-visualization {
-    height: 500px !important; /* Reduced height for modal visualization */
-    width: 100%;
-    margin-top: 20px; /* Reduced margin */
+  height: 500px !important; /* Reduced height for modal visualization */
+  width: 100%;
+  margin-top: 20px; /* Reduced margin */
 }
 
 /* Button style for View Larger */
 .btn-view-larger {
-    background-color: rgb(2, 46, 111);
-    padding: 7px 14px; /* Reduced padding */
-    font-size: 0.85rem; /* Reduced font size */
-    margin-top: 10px; /* Reduced margin */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  background-color: rgb(2, 46, 111);
+  padding: 7px 14px; /* Reduced padding */
+  font-size: 0.85rem; /* Reduced font size */
+  margin-top: 10px; /* Reduced margin */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 /* Ensure inline visualization containers in table are not too big by default */
 .visualization-container-inline {
-    width: 240px; /* Increased inline visualization width */
-    height: 160px; /* Increased inline visualization height */
-    border: 1px solid #d3e0ed;
-    margin: 6px auto;
-    background-color: #fff;
-    border-radius: 6px;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.03);
+  width: 240px; /* Increased inline visualization width */
+  height: 160px; /* Increased inline visualization height */
+  border: 1px solid #d3e0ed;
+  margin: 6px auto;
+  background-color: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.03);
 }
 
-#convert-nfa-message, #test-fa-message, #minimize-dfa-message {
-    margin-top: 18px; /* Reduced margin */
-    font-weight: 700;
-    text-align: center;
-    padding: 10px; /* Reduced padding */
-    border-radius: 6px; /* Slightly less rounded */
-    border: 1px solid transparent;
-    font-size: 1em; /* Reduced font size */
+#convert-nfa-message,
+#test-fa-message,
+#minimize-dfa-message {
+  margin-top: 18px; /* Reduced margin */
+  font-weight: 700;
+  text-align: center;
+  padding: 10px; /* Reduced padding */
+  border-radius: 6px; /* Slightly less rounded */
+  border: 1px solid transparent;
+  font-size: 1em; /* Reduced font size */
 }
 
 .display-value {
-    font-weight: bold;
-    color: #007bff;
-    font-size: 1.05em; /* Reduced font size */
-    background-color: #eef5fb;
-    padding: 3px 6px; /* Reduced padding */
-    border-radius: 3px; /* Slightly less rounded */
-    display: inline-block;
-    margin: 0 3px; /* Reduced margin */
+  font-weight: bold;
+  color: #007bff;
+  font-size: 1.05em; /* Reduced font size */
+  background-color: #eef5fb;
+  padding: 3px 6px; /* Reduced padding */
+  border-radius: 3px; /* Slightly less rounded */
+  display: inline-block;
+  margin: 0 3px; /* Reduced margin */
 }
 
 .fa-text {
-    font-family: 'Fira Code', 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
-    font-size: 0.88em; /* Reduced font size */
-    background-color: #f5f8fa;
-    border: 1px solid #e0e6ec;
-    padding: 15px; /* Reduced padding */
-    border-radius: 8px; /* Slightly less rounded */
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-height: 200px; /* Reduced max height */
-    overflow-y: auto;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+  font-family: "Fira Code", "Consolas", "Monaco", "Andale Mono", "Ubuntu Mono",
+    monospace;
+  font-size: 0.88em; /* Reduced font size */
+  background-color: #f5f8fa;
+  border: 1px solid #e0e6ec;
+  padding: 15px; /* Reduced padding */
+  border-radius: 8px; /* Slightly less rounded */
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px; /* Reduced max height */
+  overflow-y: auto;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 /* Responsive adjustments */
 @media (max-width: 992px) {
-    body {
-        padding: 15px; /* Adjusted padding */
-    }
-    .container {
-        padding: 25px; /* Adjusted padding */
-        margin-top: 20px; /* Adjusted margin */
-        margin-bottom: 20px; /* Adjusted margin */
-    }
-    h1 {
-        font-size: 2em; /* Adjusted font size */
-        margin-bottom: 20px; /* Adjusted margin */
-    }
-    h2 {
-        font-size: 1.6em; /* Adjusted font size */
-        margin-bottom: 18px; /* Adjusted margin */
-    }
-    h3 {
-        font-size: 1.1em; /* Adjusted font size */
-        margin-bottom: 12px; /* Adjusted margin */
-    }
-    .gui-section {
-        padding: 20px; /* Adjusted padding */
-        margin-bottom: 20px; /* Adjusted margin */
-    }
-    button {
-        padding: 9px 18px; /* Adjusted padding */
-        font-size: 0.9rem; /* Adjusted font size */
-    }
-    #main-menu button {
-        padding: 12px 20px; /* Adjusted padding */
-        font-size: 1rem; /* Adjusted font size */
-    }
-    .input-group input[type="text"],
-    .input-group input[type="number"],
-    .input-group textarea {
-        width: calc(100% - 18px); /* Adjusted width */
-        padding: 9px; /* Adjusted padding */
-    }
-    .fa-data-table th,
-    .fa-data-table td {
-        padding: 8px 10px; /* Adjusted padding */
-        font-size: 0.75em; /* Adjusted font size */
-    }
-    .fa-data-table .original-input-cell,
-    .fa-data-table .string-test-results-cell {
-        max-height: 90px; /* Adjusted max height */
-    }
-    .visualization-container {
-        height: 250px; /* Adjusted height */
-    }
-    .large-visualization {
-        height: 400px !important; /* Adjusted height */
-    }
-    .modal-content {
-        padding: 25px; /* Adjusted padding */
-    }
-    .close-button {
-        font-size: 28px; /* Adjusted font size */
-        top: 10px; /* Adjusted position */
-        right: 10px; /* Adjusted position */
-    }
+  body {
+    padding: 15px; /* Adjusted padding */
+  }
+  .container {
+    padding: 25px; /* Adjusted padding */
+    margin-top: 20px; /* Adjusted margin */
+    margin-bottom: 20px; /* Adjusted margin */
+  }
+  h1 {
+    font-size: 2em; /* Adjusted font size */
+    margin-bottom: 20px; /* Adjusted margin */
+  }
+  h2 {
+    font-size: 1.6em; /* Adjusted font size */
+    margin-bottom: 18px; /* Adjusted margin */
+  }
+  h3 {
+    font-size: 1.1em; /* Adjusted font size */
+    margin-bottom: 12px; /* Adjusted margin */
+  }
+  .gui-section {
+    padding: 20px; /* Adjusted padding */
+    margin-bottom: 20px; /* Adjusted margin */
+  }
+  button {
+    padding: 9px 18px; /* Adjusted padding */
+    font-size: 0.9rem; /* Adjusted font size */
+  }
+  #main-menu button {
+    padding: 12px 20px; /* Adjusted padding */
+    font-size: 1rem; /* Adjusted font size */
+  }
+  .input-group input[type="text"],
+  .input-group input[type="number"],
+  .input-group textarea {
+    width: calc(100% - 18px); /* Adjusted width */
+    padding: 9px; /* Adjusted padding */
+  }
+  .fa-data-table th,
+  .fa-data-table td {
+    padding: 8px 10px; /* Adjusted padding */
+    font-size: 0.75em; /* Adjusted font size */
+  }
+  .fa-data-table .original-input-cell,
+  .fa-data-table .string-test-results-cell {
+    max-height: 90px; /* Adjusted max height */
+  }
+  .visualization-container {
+    height: 250px; /* Adjusted height */
+  }
+  .large-visualization {
+    height: 400px !important; /* Adjusted height */
+  }
+  .modal-content {
+    padding: 25px; /* Adjusted padding */
+  }
+  .close-button {
+    font-size: 28px; /* Adjusted font size */
+    top: 10px; /* Adjusted position */
+    right: 10px; /* Adjusted position */
+  }
 }
 
 @media (max-width: 768px) {
-    body {
-        padding: 10px; /* Adjusted padding */
-        font-size: 13px; /* Adjusted font size */
-    }
-    .container {
-        padding: 18px; /* Adjusted padding */
-        margin-top: 18px; /* Adjusted margin */
-        margin-bottom: 18px; /* Adjusted margin */
-        border-radius: 10px;
-    }
-    h1 {
-        font-size: 1.6em; /* Adjusted font size */
-        margin-bottom: 15px; /* Adjusted margin */
-    }
-    h2 {
-        font-size: 1.3em; /* Adjusted font size */
-        margin-bottom: 15px; /* Adjusted margin */
-    }
-    h3 {
-        font-size: 1em; /* Adjusted font size */
-        margin-bottom: 10px; /* Adjusted margin */
-    }
-    .gui-section {
-        padding: 15px; /* Adjusted padding */
-        margin-bottom: 15px; /* Adjusted margin */
-        border-radius: 8px;
-    }
-    button {
-        padding: 7px 14px; /* Adjusted padding */
-        font-size: 0.8rem; /* Adjusted font size */
-    }
-    #main-menu button {
-        padding: 9px 16px; /* Adjusted padding */
-        font-size: 0.9rem; /* Adjusted font size */
-    }
-    .input-group input[type="text"],
-    .input-group input[type="number"],
-    .input-group textarea {
-        width: calc(100% - 14px); /* Adjusted width */
-        padding: 7px; /* Adjusted padding */
-    }
-    .fa-data-table th,
-    .fa-data-table td {
-        padding: 6px 8px; /* Adjusted padding */
-        font-size: 0.65em; /* Adjusted font size */
-    }
-    .fa-data-table .original-input-cell,
-    .fa-data-table .string-test-results-cell {
-        max-height: 70px; /* Adjusted max height */
-        padding: 6px; /* Adjusted padding */
-    }
-    .visualization-container {
-        height: 180px; /* Adjusted height */
-        margin-top: 12px; /* Adjusted margin */
-        margin-bottom: 12px; /* Adjusted margin */
-    }
-    .large-visualization {
-        height: 300px !important; /* Adjusted height */
-    }
-    .modal-content {
-        padding: 18px; /* Adjusted padding */
-        border-radius: 10px;
-    }
-    .close-button {
-        font-size: 24px; /* Adjusted font size */
-        top: 6px; /* Adjusted position */
-        right: 6px; /* Adjusted position */
-    }
-    .btn-remove-fa, .btn-view-larger {
-        padding: 6px 12px; /* Adjusted padding */
-        font-size: 0.75rem; /* Adjusted font size */
-        margin: 3px; /* Adjusted margin */
-    }
+  body {
+    padding: 10px; /* Adjusted padding */
+    font-size: 13px; /* Adjusted font size */
+  }
+  .container {
+    padding: 18px; /* Adjusted padding */
+    margin-top: 18px; /* Adjusted margin */
+    margin-bottom: 18px; /* Adjusted margin */
+    border-radius: 10px;
+  }
+  h1 {
+    font-size: 1.6em; /* Adjusted font size */
+    margin-bottom: 15px; /* Adjusted margin */
+  }
+  h2 {
+    font-size: 1.3em; /* Adjusted font size */
+    margin-bottom: 15px; /* Adjusted margin */
+  }
+  h3 {
+    font-size: 1em; /* Adjusted font size */
+    margin-bottom: 10px; /* Adjusted margin */
+  }
+  .gui-section {
+    padding: 15px; /* Adjusted padding */
+    margin-bottom: 15px; /* Adjusted margin */
+    border-radius: 8px;
+  }
+  button {
+    padding: 7px 14px; /* Adjusted padding */
+    font-size: 0.8rem; /* Adjusted font size */
+  }
+  #main-menu button {
+    padding: 9px 16px; /* Adjusted padding */
+    font-size: 0.9rem; /* Adjusted font size */
+  }
+  .input-group input[type="text"],
+  .input-group input[type="number"],
+  .input-group textarea {
+    width: calc(100% - 14px); /* Adjusted width */
+    padding: 7px; /* Adjusted padding */
+  }
+  .fa-data-table th,
+  .fa-data-table td {
+    padding: 6px 8px; /* Adjusted padding */
+    font-size: 0.65em; /* Adjusted font size */
+  }
+  .fa-data-table .original-input-cell,
+  .fa-data-table .string-test-results-cell {
+    max-height: 70px; /* Adjusted max height */
+    padding: 6px; /* Adjusted padding */
+  }
+  .visualization-container {
+    height: 180px; /* Adjusted height */
+    margin-top: 12px; /* Adjusted margin */
+    margin-bottom: 12px; /* Adjusted margin */
+  }
+  .large-visualization {
+    height: 300px !important; /* Adjusted height */
+  }
+  .modal-content {
+    padding: 18px; /* Adjusted padding */
+    border-radius: 10px;
+  }
+  .close-button {
+    font-size: 24px; /* Adjusted font size */
+    top: 6px; /* Adjusted position */
+    right: 6px; /* Adjusted position */
+  }
+  .btn-remove-fa,
+  .btn-view-larger {
+    padding: 6px 12px; /* Adjusted padding */
+    font-size: 0.75rem; /* Adjusted font size */
+    margin: 3px; /* Adjusted margin */
+  }
 }
